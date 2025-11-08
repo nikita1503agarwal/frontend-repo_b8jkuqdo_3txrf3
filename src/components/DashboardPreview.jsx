@@ -2,48 +2,49 @@ import React from 'react';
 import { motion } from 'framer-motion';
 
 const cards = [
-  {
-    title: 'Your Cosmic Snapshot',
-    desc: 'Preview of an AI‑generated report with cinematic PDF export.',
-  },
-  {
-    title: 'Real‑time Chat',
-    desc: 'Token‑streaming UI designed for clarity and flow.',
-  },
-  {
-    title: 'Voice Ready',
-    desc: 'Upload audio, transcribe, and listen back with TTS.',
-  },
+  { title: 'Daily Transit Pulse', body: 'Mars trines your Sun — momentum favors bold moves.' },
+  { title: 'Focus Insight', body: 'Career: apply pressure in short bursts, then regroup.' },
+  { title: 'Voice Note', body: 'Tap to record a quick question for AURA.' },
 ];
 
-const DashboardPreview = () => {
+export default function DashboardPreview() {
   return (
-    <section id="dashboard" className="bg-black py-20 text-white">
-      <div className="mx-auto max-w-6xl px-6">
-        <div className="mb-8 flex items-end justify-between">
-          <h2 className="text-3xl font-semibold md:text-4xl">Dashboard preview</h2>
-          <a href="#" className="text-sm text-white/70 hover:text-white">Sign in</a>
-        </div>
+    <section className="mx-auto max-w-6xl px-6 py-20">
+      <motion.h2
+        initial={{ opacity: 0, y: 10 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.6 }}
+        transition={{ duration: 0.6 }}
+        className="text-center text-3xl font-semibold text-white md:text-4xl"
+      >
+        Glimpse the Dashboard
+      </motion.h2>
 
-        <div className="grid gap-6 md:grid-cols-3">
-          {cards.map((c) => (
+      <div className="mt-10 grid grid-cols-1 gap-4 md:grid-cols-3">
+        {cards.map((c, i) => (
+          <motion.div
+            key={c.title}
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.4 }}
+            transition={{ duration: 0.5, delay: 0.08 * i }}
+            whileHover={{ scale: 1.02 }}
+            className="relative overflow-hidden rounded-xl border border-white/10 bg-white/5 p-5 text-white shadow backdrop-blur"
+          >
+            <h4 className="text-lg font-semibold">{c.title}</h4>
+            <p className="mt-2 text-sm text-white/80">{c.body}</p>
             <motion.div
-              key={c.title}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.4 }}
-              transition={{ duration: 0.5 }}
-              className="rounded-2xl border border-white/10 bg-gradient-to-b from-white/10 to-white/5 p-6"
+              aria-hidden
+              className="pointer-events-none absolute inset-0"
+              initial={{ opacity: 0 }}
+              whileHover={{ opacity: 1 }}
+              transition={{ duration: 0.3 }}
             >
-              <h3 className="text-lg font-medium">{c.title}</h3>
-              <p className="mt-2 text-sm text-white/70">{c.desc}</p>
-              <div className="mt-4 h-32 rounded-xl bg-black/50 ring-1 ring-inset ring-white/10"></div>
+              <div className="absolute -right-10 -top-10 h-36 w-36 rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.14),transparent_60%)]" />
             </motion.div>
-          ))}
-        </div>
+          </motion.div>
+        ))}
       </div>
     </section>
   );
-};
-
-export default DashboardPreview;
+}
