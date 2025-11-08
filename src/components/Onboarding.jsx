@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
+import { useApp } from './AppContext';
 
 const steps = [
   { key: 'name', label: 'Your Name', placeholder: 'e.g., Aster' },
@@ -8,8 +9,11 @@ const steps = [
 ];
 
 export default function Onboarding() {
+  const { updateOnboarding } = useApp();
   const [index, setIndex] = useState(0);
   const [form, setForm] = useState({ name: '', birthDate: '', focus: '' });
+  const [submitting, setSubmitting] = useState(false);
+  const [result, setResult] = useState(null);
   const reduce = useReducedMotion();
 
   const progress = useMemo(() => (index + 1) / steps.length, [index]);
@@ -17,9 +21,37 @@ export default function Onboarding() {
   const next = () => setIndex((i) => Math.min(i + 1, steps.length - 1));
   const back = () => setIndex((i) => Math.max(i - 1, 0));
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('submit', form);
+    setSubmitting(true);
+    try {
+      const url = `${import.meta.env.VITE_BACKEND_URL || ''}/api/onboard`;
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: form.name,
+          birthDate: form.birthDate,
+          birthTime: null,
+          interests: form.focus ? [form.focus] : [],
+        }),
+      });
+      const data = await res.json();
+      setResult(data);
+      updateOnboarding({
+        name: form.name,
+        birthDate: form.birthDate,
+        birthTime: '',
+        interests: form.focus ? [form.focus] : [],
+        completed: true,
+      });
+      const el = document.getElementById('dashboard-preview');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch (err) {
+      setResult({ ok: false, error: 'Failed to submit' });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const current = steps[index];
@@ -87,20 +119,27 @@ export default function Onboarding() {
               <button
                 type="button"
                 onClick={next}
-                className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-black hover:bg-white/90"
+                className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-black hover:bg_white/90"
               >
                 Next
               </button>
             ) : (
               <button
                 type="submit"
-                className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-black hover:bg-white/90"
+                disabled={submitting}
+                className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-black hover:bg-white/90 disabled:opacity-60"
               >
-                Generate Preview
+                {submitting ? 'Submitting…' : 'Generate Preview'}
               </button>
             )}
           </div>
         </form>
+
+        {result && (
+          <p className="mt-3 text-xs text-white/60">
+            {result.ok ? 'Saved!' : `Note: ${result.error || 'Unable to save'}`}
+          </p>
+        )}
       </div>
     </section>
   );
